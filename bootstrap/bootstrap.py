@@ -41,7 +41,9 @@ def main():
     firebase_admin.initialize_app(cred)
     bucket = firebase_admin.storage.bucket(bucket_text)
 
-    # test upload file
+    # Upload files
+    # TODO: check for existing files, and remove deleted files
+    # probably need to store manifest?
     for idx, (file, hash) in enumerate(files):
         logger.info(f"Processing file {idx+1} of {fileCount}: {file}")
 
@@ -55,7 +57,7 @@ def main():
         blob.upload_from_string(compressed, "application/zlib")
 
         # update metadata
-        blob.metadata = {"hash": hash}
+        blob.metadata = {"hash": hash.strip()}
         blob.patch()
         logger.info(f"...uploaded to {dest_path}")
 
