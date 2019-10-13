@@ -23,7 +23,7 @@ jobs:
         pipenv install
     - name: Bootstrap data
       env: |
-        FIREBASE_BUCKET: ${{ screts.FIREBASE_BUCKET }}
-        FIREBASE_ADMIN_KEY: ${{ screts.FIREBASE_ADMIN_KEY }}
+        FIREBASE_BUCKET: ${{ secrets.FIREBASE_BUCKET }}
+        FIREBASE_ADMIN_KEY: ${{ secrets.FIREBASE_ADMIN_KEY }}
       run: |
         pipenv run bootstrap
