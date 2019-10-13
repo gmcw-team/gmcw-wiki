@@ -24,7 +24,7 @@ jobs:
     - name: Generate manifest.txt
       working-directory: ./bootstrap
       run: |
-        ./last_commits.sh > manifest.txt
+        ./generate_manifest.sh > manifest.txt
     - name: Bootstrap data
       working-directory: ./bootstrap
       env:
