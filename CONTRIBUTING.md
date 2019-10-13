@@ -1,2 +1,2 @@
-# GM Community Wiki
-This repository contains the conten for the GM Community Wiki
+# Contributing to the GM Community Wiki
+Some text here2
