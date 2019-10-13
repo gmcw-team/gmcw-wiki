@@ -1,4 +1,4 @@
-name: Bootstrap2
+name: Bootstrap
 
 on:
   push:
@@ -21,6 +21,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip pipenv
         pipenv install
+    - name: Generate manifest.txt
+      working-directory: ./bootstrap
+      run: |
+        ./last_commits.sh > manifest.txt
     - name: Bootstrap data
       working-directory: ./bootstrap
       env:

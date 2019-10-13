@@ -21,46 +21,45 @@ logger.setLevel(logging.DEBUG)
 def main():
     """ starts here """
 
+    # check manifest exists
+    logger.info("Fetching manifest")
+    files = [line.rsplit(",") for line in open("manifest.txt")]
+    fileCount = len(files)
+    logger.info(f"...got {fileCount} files")
+
     # deal with credentials
     logger.info("Parsing credential")
     cred_text = os.environ.get('FIREBASE_ADMIN_KEY')
-    if cred_text is None:
-        logger.error("FIREBASE_ADMIN_KEY environ not set")
-        exit(1)
     cred_dict = json.loads(cred_text)
     cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
+    logger.info(f"...got credential id {cred_dict['private_key_id'][:6]}...")
 
     # connect Firebase
     logger.info("Connect firebase")
     bucket_text = os.environ.get('FIREBASE_BUCKET')
-    if bucket_text is None:
-        logger.error("FIREBASE_BUCKET environ not set")
-        exit(1)
     cred = firebase_admin.credentials.Certificate(cred_dict)
     firebase_admin.initialize_app(cred)
     bucket = firebase_admin.storage.bucket(bucket_text)
 
     # test upload file
-    logger.info("Test upload")
-    file = "../code/index.md"
-    hash = "db86399fe438be6292a8ddc2773ff33118718913"
-    path = "code/index.md"
+    for idx, (file, hash) in enumerate(files):
+        logger.info(f"Processing file {idx+1} of {fileCount}: {file}")
 
-    # compress file
-    with open(file, "rb") as fp:
-        compressed = zlib.compress(fp.read())
+        dest_path = os.path.relpath(file, "..").replace("\\", "/")
 
-    blob = bucket.blob(path)
-    blob.upload_from_string(compressed, "application/zlib")
+        # compress file
+        with open(file, "rb") as fp:
+            compressed = zlib.compress(fp.read())
 
-    # update metadata
-    blob.metadata = {
-        "hash": hash,
-        "extra": 123
-    }
-    blob.patch()
+        blob = bucket.blob(dest_path)
+        blob.upload_from_string(compressed, "application/zlib")
 
-    logger.info("Done bootstrapping files")
+        # update metadata
+        blob.metadata = {"hash": hash}
+        blob.patch()
+        logger.info(f"...uploaded to {dest_path}")
+
+    logger.info(f"Done bootstrapping {fileCount} files")
 
 if __name__ == "__main__":
     main()
