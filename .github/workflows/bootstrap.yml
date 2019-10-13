@@ -22,7 +22,7 @@ jobs:
         python -m pip install --upgrade pip pipenv
         pipenv install
     - name: Bootstrap data
-      env: |
+      env:
         FIREBASE_BUCKET: ${{ secrets.FIREBASE_BUCKET }}
         FIREBASE_ADMIN_KEY: ${{ secrets.FIREBASE_ADMIN_KEY }}
       run: |
