@@ -29,7 +29,6 @@ def main():
         exit(1)
     cred_dict = json.loads(cred_text)
     cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
-    logger.debug(cred_dict)
 
     # connect Firebase
     logger.info("Connect firebase")
