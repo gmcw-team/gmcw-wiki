@@ -1,4 +1,4 @@
-name: Python package
+name: Bootstrap
 
 on:
   push:
@@ -9,22 +9,21 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 4
-      matrix:
-        python-version: [3.7]
 
     steps:
     - uses: actions/checkout@v1
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python 3.7
       uses: actions/setup-python@v1
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: 3.7
     - name: Install dependencies
       working-directory: ./bootstrap
       run: |
         python -m pip install --upgrade pip pipenv
         pipenv install
     - name: Bootstrap data
+      env: |
+        FIREBASE_BUCKET: ${{ screts.FIREBASE_BUCKET }}
+        FIREBASE_ADMIN_KEY: ${{ screts.FIREBASE_ADMIN_KEY }}
       run: |
         pipenv run bootstrap
