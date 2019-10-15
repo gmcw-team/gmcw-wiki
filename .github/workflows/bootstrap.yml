@@ -30,5 +30,7 @@ jobs:
       env:
         FIREBASE_BUCKET: ${{ secrets.FIREBASE_BUCKET }}
         FIREBASE_ADMIN_KEY: ${{ secrets.FIREBASE_ADMIN_KEY }}
+        ELASTICSEARCH_HOST: ${{ secrets.ELASTICSEARCH_HOST }}
+        ELASTICSEARCH_CRED: ${{ secrets.ELASTICSEARCH_CRED }}
       run: |
         pipenv run bootstrap

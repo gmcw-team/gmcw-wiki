@@ -1,6 +1,8 @@
 # manifest file
 manifest.txt
 
+fnames14
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -10,6 +10,9 @@ bootstrap = "python ./bootstrap.py"
 
 [packages]
 firebase-admin = "*"
+elasticsearch = "*"
+markdown = "*"
+beautifulsoup4 = "*"
 
 [requires]
 python_version = "3.7"

@@ -11,12 +11,18 @@ import firebase_admin
 import firebase_admin.storage
 import firebase_admin.credentials
 
+from elasticsearch import Elasticsearch
+from markdown import markdown
+from bs4 import BeautifulSoup as bs
+import re
+
 logger = logging.getLogger(__name__)
 log_handler = logging.StreamHandler(sys.stdout) # pylint: disable=invalid-name
 log_handler.setFormatter(logging.Formatter('[%(asctime)s] %(message)s'))
-#log_handler.setLevel(logging.INFO)
 logger.addHandler(log_handler)
 logger.setLevel(logging.DEBUG)
+
+
 
 def main():
     """ starts here """
@@ -41,6 +47,62 @@ def main():
     firebase_admin.initialize_app(cred)
     bucket = firebase_admin.storage.bucket(bucket_text)
 
+    # connect Elasticsearch
+    logger.info("Connect elasticsearch")
+    es = Elasticsearch(hosts=[os.environ.get('ELASTICSEARCH_HOST')],
+                        use_ssl=True,
+                        http_auth=os.environ.get('ELASTICSEARCH_CRED'))
+    health = es.cluster.health()
+    logger.info(f"...got status {health['status']}")
+
+    # import functions file
+    logger.info("Import fnames")
+    with open("fnames.json") as fp:
+        fnames = set(json.load(fp))
+
+    # define some functions
+
+    func_pattern = re.compile(r"\s(\w+)\(")
+
+    def upload(md, hash):
+        # compress
+        compressed = zlib.compress(md)
+
+        blob = bucket.blob(dest_path)
+        blob.upload_from_string(compressed, "application/zlib")
+
+        # update metadata
+        blob.metadata = {"hash": hash.strip()}
+        blob.patch()
+
+    def extract(md):
+        # TODO: this should probably be moved to elasticseacrh engest
+        # parse
+        html = markdown(md)
+        soup = bs(html, "html.parser")
+
+        # get plaintext for searching
+        fulltext = " ".join(soup.find_all(string=True))
+
+        # get headings for searching
+        headings1 = [res.text for res in soup.find_all("h1")]
+        headings2 = [res.text for res in soup.find_all("h2")]
+        headings3 = [res.text for res in soup.find_all("h3")]
+        headings4 = [res.text for res in soup.find_all(["h4", "h5", "h6"])]
+
+        # get functions
+        func_candidates = set(func_pattern.findall(fulltext))
+        functions = list(func_candidates.intersection(fnames))
+
+        return {
+            "fulltext": fulltext,
+            "headings1": headings1,
+            "headings2": headings2,
+            "headings3": headings3,
+            "headings4": headings4,
+            "functions": functions
+        }
+
     # Upload files
     # TODO: check for existing files, and remove deleted files
     # probably need to store manifest?
@@ -49,17 +111,22 @@ def main():
 
         dest_path = os.path.relpath(file, "..").replace("\\", "/")
 
-        # compress file
-        with open(file, "rb") as fp:
-            compressed = zlib.compress(fp.read())
+        # read file
+        md_bytes = open(file, "rb").read()
 
-        blob = bucket.blob(dest_path)
-        blob.upload_from_string(compressed, "application/zlib")
-
-        # update metadata
-        blob.metadata = {"hash": hash.strip()}
-        blob.patch()
+        # upload to bucket
+        upload(md_bytes, hash)
         logger.info(f"...uploaded to {dest_path}")
+
+        # extract search data
+        md_text = md_bytes.decode("utf-8", "ignore")
+        search_data = extract(md_text)
+        logger.info(f"...extracted search data")
+
+        # push to elastic
+        res = es.index(index="pages", id=dest_path, body=search_data)
+        logger.info(f"...pushed to elastic id {res['_id']}")
+
 
     logger.info(f"Done bootstrapping {fileCount} files")
 
