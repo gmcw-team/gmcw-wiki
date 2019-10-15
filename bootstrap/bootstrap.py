@@ -83,7 +83,7 @@ def main():
         fulltext = " ".join(soup.find_all(string=True))
 
         # get page title
-        title = soup.find(["h1", "h2", "h3"])
+        title = soup.find(["h1", "h2", "h3"]).text
         if title is None:
             title = "Untitled page"
 
