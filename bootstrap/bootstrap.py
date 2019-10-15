@@ -22,8 +22,6 @@ log_handler.setFormatter(logging.Formatter('[%(asctime)s] %(message)s'))
 logger.addHandler(log_handler)
 logger.setLevel(logging.DEBUG)
 
-
-
 def main():
     """ starts here """
 
