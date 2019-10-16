@@ -128,7 +128,7 @@ def main():
         # extract search data
         md_text = md_bytes.decode("utf-8", "ignore")
         search_data = extract(md_text)
-        search_data["timestamp"] = timestamp
+        search_data["timestamp"] = int(timestamp)
         logger.info(f"...extracted search data")
 
         # push to elastic
