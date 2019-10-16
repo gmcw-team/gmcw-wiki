@@ -62,7 +62,7 @@ def main():
 
     func_pattern = re.compile(r"\s(\w+)\(")
 
-    def upload(md, hash):
+    def upload(md, hash, dest_path):
         # compress
         compressed = zlib.compress(md)
 
@@ -113,11 +113,16 @@ def main():
 
         dest_path = os.path.relpath(file, "..").replace("\\", "/")
 
+        # filtering
+        if not dest_path.startswith(("wiki", "code")) or not dest_path.endswith(".md"):
+            logger.info("...file path invalid, skipping")
+            continue
+
         # read file
         md_bytes = open(file, "rb").read()
 
         # upload to bucket
-        upload(md_bytes, hash)
+        upload(md_bytes, hash, dest_path)
         logger.info(f"...uploaded to {dest_path}")
 
         # extract search data
@@ -126,7 +131,8 @@ def main():
         logger.info(f"...extracted search data")
 
         # push to elastic
-        res = es.index(index="pages", id=dest_path, body=search_data)
+        id = os.path.splittext(dest_path)[0]
+        res = es.index(index="pages", id=id, body=search_data)
         logger.info(f"...pushed to elastic id {res['_id']}")
 
 
