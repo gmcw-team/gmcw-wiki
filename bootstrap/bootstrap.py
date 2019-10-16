@@ -105,7 +105,7 @@ def main():
             "functions": functions
         }
 
-    # Upload files
+    # Upload files 
     # TODO: check for existing files, and remove deleted files
     # probably need to store manifest?
     for idx, (file, hash, timestamp) in enumerate(files):
