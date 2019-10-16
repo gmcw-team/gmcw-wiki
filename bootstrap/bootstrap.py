@@ -131,7 +131,7 @@ def main():
         logger.info(f"...extracted search data")
 
         # push to elastic
-        id = os.path.splittext(dest_path)[0]
+        id = os.path.splitext(dest_path)[0]
         res = es.index(index="pages", id=id, body=search_data)
         logger.info(f"...pushed to elastic id {res['_id']}")
 
