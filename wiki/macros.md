@@ -18,10 +18,22 @@ But be warned! Macros are **not** constants. Notice the macro below. Every time 
 
 That covers the basics, but we can do more...
 
-## Unhygienic Macros
-
 ## Overriding Functions
+
+Gamemaker has a vague sense of a 'standard library', i.e. it has built-in functions which are written in the engine's native code. Perhaps you've wanted to replace a native function with your own implementation? Although Gamemaker doesn't support method overriding outside of object events, we can actually abuse macros to replace all occurences of a native function with our own function!
+
+To do this, it is as simple as creating a macro with the same name as the native function, then in the body of the macro we write the function we want it to be replaced with. Consider a custom function `log`, which writes a message to a log file called `"debug.log"`. We can then use it to override the native function `show_debug_message` by creating the following macro:
+
+```gml
+#macro show_debug_message log
+```
+
+Now, every time you call `show_debug_message`, you will actually be calling `log`; writing the message to a log file instead of to the console.
+
+Unfortunately, this is a one-way trip. Overriding a native function means you wont be able to use the native implementation of that function again until you stop overriding it.
 
 ## Overriding Variables
 
-## Generating Code with Custom Syntax
+## Unhygienic Macros
+
+## Code Generation and Custom Syntax
