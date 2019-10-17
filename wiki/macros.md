@@ -48,24 +48,6 @@ This has the same benefits and limitations as overriding functions, i.e. you can
 
 _*Since Gamemaker stores colors as BGR instead of as RGB, the hex code of the new colour will be `0x6458D1` instead of the `0xD15864` displayed on the linked page._
 
-## The Hygiene Problem
-
-Macros are _non-hygienic_. This means that macros may create and access variables from outside of its scope. For example, consider the following snippet of code:
-
-```gml
-#macro MAKE_VAR var a = 2
-
-MAKE_VAR;
-show_message(a);
-```
-
-If macros were hygienic, this code would throw an error because the variable `a` does not exist. Since this is not the case, after the compiler expands the code into the following snippet, it becomes trivial that no error will occur.
-
-```gml
-var a = 2;
-show_message(a);
-```
-
 ## The Precedence Problem
 
 Consider the following macro.
@@ -95,18 +77,34 @@ var xpos = a[i * 2 + 0];
 var ypos = a[i * 2 + 1];
 ```
 
-This will get the x and y positions of the pair at the index `i`. Now consider the following macros:
+This will get the x and y positions of the pair at the index `i`.
+
+Now, consider the following code:
 
 ```gml
 #macro XPOS 2 + 0
 #macro YPOS 2 + 1
-```
 
-We can then use these to index our array like so:
-
-```gml
 var xpos = a[i * XPOS];
 var xpos = a[i * YPOS];
 ```
 
-This works because the compiler expands each of these macros into code that is equivalent to the original code snippet. Notice that there are no parenthesis around the expressions in the macro bodies. This is because the intended behaviour of these macros is to ignore precedence.
+Notice that there are no parenthesis around the expressions in the macro bodies. These macros will be expanded by the compiler into code that is equivalent to the previous snippet.
+
+## The Hygiene Problem
+
+Macros are _non-hygienic_. This means that macros may create and access variables from outside of its scope. For example, consider the following snippet of code:
+
+```gml
+#macro MAKE_VAR var a = 2
+
+MAKE_VAR;
+show_message(a);
+```
+
+If macros were hygienic, this code would throw an error because the variable `a` does not exist. Since this is not the case, after the compiler expands the code into the following snippet, it becomes trivial that no error will occur.
+
+```gml
+var a = 2;
+show_message(a);
+```
