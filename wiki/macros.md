@@ -87,3 +87,26 @@ You might expect the value of `a` to be `4 * (5 + 8)` because of precedence rule
 ```
 
 This would now give the desired result of `4 * (5 + 8)`.
+
+Much like the how macros can be abused to simulate function overriding, this behaviour can be abused for array indexing. Suppose you have an array `a` of the form `[x1, y1, x2, y2, ...]`. To index this array, you may use the following code:
+
+```gml
+var xpos = a[i * 2 + 0];
+var ypos = a[i * 2 + 1];
+```
+
+This will get the x and y positions of the pair at the index `i`. Now consider the following macros:
+
+```gml
+#macro XPOS 2 + 0
+#macro YPOS 2 + 1
+```
+
+We can then use these to index our array like so:
+
+```gml
+var xpos = a[i * XPOS];
+var xpos = a[i * YPOS];
+```
+
+This works because the compiler expands each of these macros into code that is equivalent to the original code snippet. Notice that there are no parenthesis around the expressions in the macro bodies. This is because the intended behaviour of these macros is to ignore precedence.
