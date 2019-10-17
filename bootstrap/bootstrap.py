@@ -27,7 +27,7 @@ def main():
 
     # check manifest exists
     logger.info("Fetching manifest")
-    files = [line.rsplit(",") for line in open("manifest.txt")]
+    files = [line.rsplit(",", 2) for line in open("manifest.txt")]
     fileCount = len(files)
     logger.info(f"...got {fileCount} files")
 
@@ -105,10 +105,10 @@ def main():
             "functions": functions
         }
 
-    # Upload files
+    # Upload files 
     # TODO: check for existing files, and remove deleted files
     # probably need to store manifest?
-    for idx, (file, hash) in enumerate(files):
+    for idx, (file, hash, timestamp) in enumerate(files):
         logger.info(f"Processing file {idx+1} of {fileCount}: {file}")
 
         dest_path = os.path.relpath(file, "..").replace("\\", "/")
@@ -128,6 +128,7 @@ def main():
         # extract search data
         md_text = md_bytes.decode("utf-8", "ignore")
         search_data = extract(md_text)
+        search_data["timestamp"] = int(timestamp)
         logger.info(f"...extracted search data")
 
         # push to elastic
