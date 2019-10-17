@@ -46,6 +46,44 @@ The idea of overriding native functions can be extended to overriding built-in v
 
 This has the same benefits and limitations as overriding functions, i.e. you cannot use the original colour unless you stop overriding it.
 
-_*Since Gamemaker stores colors as BGR, the hex code of the new colour will be `0x6458D1` instead of the `#D15864` displayed on the page._
+_*Since Gamemaker stores colors as BGR instead of as RGB, the hex code of the new colour will be `0x6458D1` instead of the `0xD15864` displayed on the linked page._
 
-## Unhygienic Macros
+## The Hygiene Problem
+
+Macros are _non-hygienic_. This means that macros may create and access variables from outside of its scope. For example, consider the following snippet of code:
+
+```gml
+#macro MAKE_VAR var a = 2
+
+MAKE_VAR;
+show_message(a);
+```
+
+If macros were hygienic, this code would throw an error because the variable `a` does not exist. Since this is not the case, after the compiler expands the code into the following snippet, it becomes trivial that no error will occur.
+
+```gml
+var a = 2;
+show_message(a);
+```
+
+## The Precedence Problem
+
+Consider the following macro.
+
+```gml
+#macro TOTAL 5 + 8
+```
+
+Now suppose it is used in an expression such as:
+
+```gml
+var a = 4 * TOTAL;
+```
+
+You might expect the value of `a` to be `4 * (5 + 8)` because of precedence rules. However, due to the behaviour of macros, this is not the case! The compiler will expand the previous expression into `4 * 5 + 8`, which is not the desired result. To obtain the result we want, the expression inside the body of the macro should be wrapped in a grouping as follows:
+
+```gml
+#macro TOTAL (5 + 8)
+```
+
+This would now give the desired result of `4 * (5 + 8)`.
