@@ -10,11 +10,13 @@ The better option would be to write a macro (`CONFIG_FILE`) to do the work for y
 #macro CONFIG_FILE "config.ini"
 ```
 
-But be warned! Macros are **not** constants. Notice the macro below. Every time you use this macro, it will *actually* create a new instance of the `obj_player` object. So, if you had one-hundred occurences of the phrase `PLAYER`, you would have one-hundred _unique_ instances of the `obj_player` object.
+But be warned! Macros are **not** constants. Notice the macro below. Every time you use this macro, it will *actually* create a new instance of the `obj_player` object.
 
 ```gml
 #macro PLAYER instance_create_depth(0, 0, 0, obj_player)
 ```
+
+So, if you had one-hundred occurences of the phrase `PLAYER`, you would have one-hundred _unique_ instances of the `obj_player` object.
 
 That covers the basics, but we can do more...
 
@@ -44,8 +46,6 @@ The idea of overriding native functions can be extended to overriding built-in v
 
 This has the same benefits and limitations as overriding functions, i.e. you cannot use the original colour unless you stop overriding it.
 
-_*Since Gamemaker stores colors as BGR, the hex code the the new colour will be `0x6458D1`_
+_*Since Gamemaker stores colors as BGR, the hex code of the new colour will be `0x6458D1` instead of the `#D15864` displayed on the page._
 
 ## Unhygienic Macros
-
-## Code Generation and Custom Syntax
