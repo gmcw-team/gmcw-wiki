@@ -88,9 +88,7 @@ def main():
             title = "Untitled page"
 
         # getremaining headings
-        headings1 = [res.text for res in soup.find_all("h1")]
-        headings2 = [res.text for res in soup.find_all("h2")]
-        headings3 = [res.text for res in soup.find_all(["h3", "h4", "h5", "h6"])]
+        headings = [res.text for res in soup.find_all(["h1", "h2", "h3", "h4", "h5", "h6"])]
 
         # get functions
         func_candidates = set(func_pattern.findall(fulltext))
@@ -99,9 +97,7 @@ def main():
         return {
             "fulltext": fulltext,
             "title": title,
-            "headings1": headings1,
-            "headings2": headings2,
-            "headings3": headings3,
+            "headings": headings,
             "functions": functions
         }
 
