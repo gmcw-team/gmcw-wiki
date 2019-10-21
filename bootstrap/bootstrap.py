@@ -105,7 +105,7 @@ def main():
             "functions": functions
         }
 
-    # Upload files 
+    # Upload files
     # TODO: check for existing files, and remove deleted files
     # probably need to store manifest?
     for idx, (file, hash, timestamp) in enumerate(files):
@@ -129,6 +129,12 @@ def main():
         md_text = md_bytes.decode("utf-8", "ignore")
         search_data = extract(md_text)
         search_data["timestamp"] = int(timestamp)
+        if (dest_path.startswith("wiki")) {
+            search_data["type"] = "wiki"
+        }
+        elif (dest_path.startswith("code")) {
+            search_data["type"] = "code"
+        }
         logger.info(f"...extracted search data")
 
         # push to elastic

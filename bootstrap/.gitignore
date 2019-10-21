@@ -1,6 +1,9 @@
 # manifest file
 manifest.txt
 
+# gmldocs file
+gmlDocs.json
+
 fnames14
 
 # Byte-compiled / optimized / DLL files
