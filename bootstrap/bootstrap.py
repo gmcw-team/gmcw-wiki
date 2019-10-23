@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""" bootstraps the server """
+""" bootstraps data into the server """
 
 import sys
 import os
@@ -22,14 +22,10 @@ log_handler.setFormatter(logging.Formatter('[%(asctime)s] %(message)s'))
 logger.addHandler(log_handler)
 logger.setLevel(logging.DEBUG)
 
+TYPES = ["wiki"]
+
 def main():
     """ starts here """
-
-    # check manifest exists
-    logger.info("Fetching manifest")
-    files = [line.rsplit(",", 2) for line in open("manifest.txt")]
-    fileCount = len(files)
-    logger.info(f"...got {fileCount} files")
 
     # deal with credentials
     logger.info("Parsing credential")
@@ -101,43 +97,46 @@ def main():
             "functions": functions
         }
 
-    # Upload files
-    # TODO: check for existing files, and remove deleted files
-    # probably need to store manifest?
-    for idx, (file, hash, timestamp) in enumerate(files):
-        logger.info(f"Processing file {idx+1} of {fileCount}: {file}")
+    for type in TYPES:
+        # check manifest exists
+        logger.info(f"Fetching manifest for {type}")
+        files = [line.rsplit(",", 2) for line in open(f"manifest_{type}.txt")]
+        fileCount = len(files)
+        logger.info(f"...got {fileCount} files")
 
-        dest_path = os.path.relpath(file, "..").replace("\\", "/")
+        # Upload files
+        # TODO: check for existing files, and remove deleted files
+        # probably need to store manifest?
+        for idx, (file, hash, timestamp) in enumerate(files):
+            logger.info(f"Processing file {idx+1} of {fileCount}: {file}")
 
-        # filtering
-        if not dest_path.startswith(("wiki", "code")) or not dest_path.endswith(".md"):
-            logger.info("...file path invalid, skipping")
-            continue
+            # normalize paths
+            source_folder = os.path.join("..", type)
+            file_path = os.path.relpath(file, source_folder).replace("\\", "/")
+            dest_path = os.path.join(type, file_path).replace("\\", "/")
 
-        # read file
-        md_bytes = open(file, "rb").read()
+            # read file
+            md_bytes = open(file, "rb").read()
 
-        # upload to bucket
-        upload(md_bytes, hash, dest_path)
-        logger.info(f"...uploaded to {dest_path}")
+            # upload to bucket
+            upload(md_bytes, hash, dest_path)
+            logger.info(f"...uploaded to {dest_path}")
 
-        # extract search data
-        md_text = md_bytes.decode("utf-8", "ignore")
-        search_data = extract(md_text)
-        search_data["timestamp"] = int(timestamp)
-        if dest_path.startswith("wiki"):
-            search_data["type"] = "wiki"
-        elif dest_path.startswith("code"):
-            search_data["type"] = "code"
-        logger.info(f"...extracted search data")
+            # extract search data
+            md_text = md_bytes.decode("utf-8", "ignore")
+            search_data = extract(md_text)
+            search_data["timestamp"] = int(timestamp)
+            search_data["type"] = type
+            logger.info(f"...extracted search data")
 
-        # push to elastic
-        id = os.path.splitext(dest_path)[0]
-        res = es.index(index="pages", id=id, body=search_data)
-        logger.info(f"...pushed to elastic id {res['_id']}")
+            # push to elastic
+            index = "gmcw_"+type
+            id = os.path.splitext(file_path)[0] # remove extension
+            res = es.index(index=index, id=id, body=search_data)
+            logger.info(f"...pushed to elastic id {res['_id']}")
 
-
-    logger.info(f"Done bootstrapping {fileCount} files")
+        logger.info(f"Done bootstrapping {fileCount} files")
+    logger.info("All done")
 
 if __name__ == "__main__":
     main()
