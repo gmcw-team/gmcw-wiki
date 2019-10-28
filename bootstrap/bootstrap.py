@@ -113,8 +113,8 @@ def main():
         # TODO: check for existing files, and remove deleted files
         # probably need to store manifest?
         for idx, (file, hash, timestamp) in enumerate(files):
-            type_logger.info("Processing file", idx=idx)
-            logger_idx = type_logger.bind(idx=idx)
+            logger_type.info("Processing file", idx=idx)
+            logger_idx = logger_type.bind(idx=idx)
 
             # normalize paths
             source_folder = os.path.join("..", type)
