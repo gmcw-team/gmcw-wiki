@@ -44,7 +44,7 @@ def main():
 
     # import functions file
     logger.info("Import fnames")
-    with open("fnames.json") as fp:
+    with open("../fnames.json") as fp:
         fnames = set(json.load(fp))
 
     func_pattern = re.compile(r"\s(\w+)\(")
