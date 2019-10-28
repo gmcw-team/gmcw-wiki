@@ -35,7 +35,7 @@ def main():
     cred_text = os.environ.get('FIREBASE_ADMIN_KEY')
     cred_dict = json.loads(cred_text)
     cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
-    logger.info("Got credential id", cred_id=cred_dict['private_key_id']")
+    logger.info("Got credential id", cred_id=cred_dict['private_key_id'])
 
     # connect Firebase
     logger.info("Connect firebase")
@@ -127,7 +127,7 @@ def main():
 
             # upload to bucket
             upload(md_bytes, hash, dest_path)
-            logger.info("Uploaded", path=dest_path")
+            logger.info("Uploaded", path=dest_path)
 
             # extract search data
             md_text = md_bytes.decode("utf-8", "ignore")
@@ -146,7 +146,7 @@ def main():
 
         logger.info(f"Done bootstrapping files")
         logger.unbind("type", "fileCount")
-        
+
     logger.info("All done")
 
 if __name__ == "__main__":
