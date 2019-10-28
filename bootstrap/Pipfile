@@ -5,8 +5,8 @@ verify_ssl = true
 
 [scripts]
 bootstrap = "python ./bootstrap.py"
-fnames = "python ./fnames.py"
-gmldocs = "python ./gmldocs.py"
+fnames = "python ./fnames/fnames.py"
+gmldocs = "python ./gmldocs/gmldocs.py"
 
 [dev-packages]
 
@@ -15,6 +15,9 @@ firebase-admin = "*"
 elasticsearch = "*"
 markdown = "*"
 beautifulsoup4 = "*"
+sentry-sdk = "*"
+structlog = "*"
+python-json-logger = "*"
 
 [requires]
 python_version = "3.7"

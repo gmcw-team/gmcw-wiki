@@ -1,5 +1,5 @@
 # manifest file
-manifest.txt
+manifest*.txt
 
 # gmldocs file
 gmlDocs.json
