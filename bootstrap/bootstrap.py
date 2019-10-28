@@ -22,7 +22,7 @@ import structlog
 from sentry_sdk import capture_message
 
 logging_suite.setup()
-logger = structlog.get_logger(__name__)
+logger = structlog.get_logger(__name__, component="bootstrap")
 logger.setLevel(logging.DEBUG)
 
 TYPES = ["wiki"]
