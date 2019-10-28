@@ -24,6 +24,7 @@ jobs:
     - name: Generate manifest.txt
       working-directory: ./bootstrap
       run: |
+        chmod +x generate_manifests.sh
         ./generate_manifests.sh ../wiki > manifest_wiki.txt
     - name: Bootstrap data
       working-directory: ./bootstrap
