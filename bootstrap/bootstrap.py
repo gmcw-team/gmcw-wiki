@@ -104,18 +104,17 @@ def main():
     for type in TYPES:
         # check manifest exists
         logger.info("Fetching manifest for type", type=type)
-        logger = logger.bind(type=type)
         files = [line.rsplit(",", 2) for line in open(f"manifest_{type}.txt")]
         fileCount = len(files)
         logger.info("Got files for type", count=fileCount)
-        logger = logger.bind(count=fileCount)
+        logger_type = logger.bind(count=fileCount, type=type)
 
         # Upload files
         # TODO: check for existing files, and remove deleted files
         # probably need to store manifest?
         for idx, (file, hash, timestamp) in enumerate(files):
-            logger.info("Processing file", idx=idx)
-            logger = logger.bind(idx=idx)
+            type_logger.info("Processing file", idx=idx)
+            logger_idx = type_logger.bind(idx=idx)
 
             # normalize paths
             source_folder = os.path.join("..", type)
@@ -127,25 +126,22 @@ def main():
 
             # upload to bucket
             upload(md_bytes, hash, dest_path)
-            logger.info("Uploaded", path=dest_path)
+            logger_idx.info("Uploaded", path=dest_path)
 
             # extract search data
             md_text = md_bytes.decode("utf-8", "ignore")
             search_data = extract(md_text)
             search_data["timestamp"] = int(timestamp)
             search_data["type"] = type
-            logger.info("Extracted search data")
+            logger_idx.info("Extracted search data")
 
             # push to elastic
             index = "gmcw_"+type
             id = os.path.splitext(file_path)[0] # remove extension
             res = es.index(index=index, id=id, body=search_data)
-            logger.info("Pushed to elastic", id=res['_id'])
+            logger_idx.info("Pushed to elastic", id=res['_id'])
 
-            logger = logger.unbind("idx")
-
-        logger.info(f"Done bootstrapping files")
-        logger = logger.unbind("type", "fileCount")
+        logger_type.info(f"Done bootstrapping files")
 
     logger.info("All done")
 
