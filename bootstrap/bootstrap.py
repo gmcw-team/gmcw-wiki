@@ -22,7 +22,7 @@ import structlog
 from sentry_sdk import capture_message
 
 logging_suite.setup()
-logger = structlog.get_logger(__name__)
+logger = structlog.get_logger(__name__, component="bootstrap")
 logger.setLevel(logging.DEBUG)
 
 TYPES = ["wiki"]
@@ -104,18 +104,18 @@ def main():
     for type in TYPES:
         # check manifest exists
         logger.info("Fetching manifest for type", type=type)
-        logger.bind(type=type)
+        logger = logger.bind(type=type)
         files = [line.rsplit(",", 2) for line in open(f"manifest_{type}.txt")]
         fileCount = len(files)
         logger.info("Got files for type", count=fileCount)
-        logger.bind(count=fileCount)
+        logger = logger.bind(count=fileCount)
 
         # Upload files
         # TODO: check for existing files, and remove deleted files
         # probably need to store manifest?
         for idx, (file, hash, timestamp) in enumerate(files):
             logger.info("Processing file", idx=idx)
-            logger.bind(idx=idx)
+            logger = logger.bind(idx=idx)
 
             # normalize paths
             source_folder = os.path.join("..", type)
@@ -142,10 +142,10 @@ def main():
             res = es.index(index=index, id=id, body=search_data)
             logger.info("Pushed to elastic", id=res['_id'])
 
-            logger.unbind("idx")
+            logger = logger.unbind("idx")
 
         logger.info(f"Done bootstrapping files")
-        logger.unbind("type", "fileCount")
+        logger = logger.unbind("type", "fileCount")
 
     logger.info("All done")
 
