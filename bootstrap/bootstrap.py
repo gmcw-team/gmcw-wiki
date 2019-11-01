@@ -133,6 +133,7 @@ def main():
             search_data = extract(md_text)
             search_data["timestamp"] = int(timestamp)
             search_data["type"] = type
+            search_data["hash"] = hash
             logger_idx.info("Extracted search data")
 
             # push to elastic
