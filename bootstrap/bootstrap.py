@@ -54,7 +54,7 @@ def main():
 
     # import functions file
     logger.info("Import fnames")
-    with open("fnames/fnames.json") as fp:
+    with open("fnames.json") as fp:
         fnames = set(json.load(fp))
     logger.info("Got fnames")
 

@@ -106,7 +106,7 @@ that last line which continues item 3 above).
 
 Here's a link to [a website](http://foo.bar), to a [local absolute
 doc](/wiki/macro), [local
-doc](macro), and to a [section heading in the current
+doc](macro), an+d to a [section heading in the current
 doc](#an-h2-header). Here's a footnote [^1].
 
 [^1]: Some footnote text.
