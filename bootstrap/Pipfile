@@ -5,8 +5,8 @@ verify_ssl = true
 
 [scripts]
 bootstrap = "python ./bootstrap.py"
-fnames = "python ./fnames/fnames.py"
-gmldocs = "python ./gmldocs/gmldocs.py"
+fnames = "python ./fnames.py"
+gmldocs = "python ./gmldocs.py"
 
 [dev-packages]
 

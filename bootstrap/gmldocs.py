@@ -44,7 +44,7 @@ def main():
 
     # import functions file
     logger.info("Import fnames")
-    with open("../fnames.json") as fp:
+    with open("fnames.json") as fp:
         fnames = set(json.load(fp))
 
     func_pattern = re.compile(r"\s(\w+)\(")
@@ -71,7 +71,7 @@ def main():
 
         # push to elastic
         id = item["name"]
-        res = es.index(index="docs", id=id, body=search_data)
+        res = es.index(index="gmcw_docs", id=id, body=search_data)
         logger.info(f"...pushed to elastic id {res['_id']}")
 
 
