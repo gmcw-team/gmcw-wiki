@@ -1,4 +1,4 @@
-# GMCW: GameMaker Community Wiki
+# Welcome to the GameMaker Community Wiki
 Welcome to the GameMaker Community Wiki, a community-run wiki containing documentation, code snippets, and tutorials for the GameMaker software and GameMaker Language (GML) made by [YoYo Games](https://yoyogames.com/). To contribute to this wiki, see the [Contribution page](contributing).
 
 Use the Search functionality at the top of the page to find knowledge.

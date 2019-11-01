@@ -1,7 +1,7 @@
 # Contributing to the GM Community Wiki
 The GameMaker Community Wiki is a community-run wiki containing documentation, code snippets, and tutorials. It is maintained by you, the GameMaker user community.
 
-Anyone can contribute, and help build on this collection of knowledge for the benefit of all GameMaker users.
+Anyone can contribute, and help build this collection of knowledge for the benefit of all GameMaker users.
 
 ## How to Contribute
 Contribution is done using GitHub. The GMCW wiki pages are stored as [markdown](https://daringfireball.net/projects/markdown/) files in a github repository. You can contribute by merging your additions/edits into the repository.
