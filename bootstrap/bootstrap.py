@@ -59,7 +59,6 @@ def main():
     logger.info("Got fnames")
 
     # define some functions
-
     func_pattern = re.compile(r"\s(\w+)\(")
 
     def upload(md, hash, dest_path):
@@ -109,6 +108,16 @@ def main():
         logger.info("Got files for type", count=fileCount)
         logger_type = logger.bind(count=fileCount, type=type)
 
+        # clear index
+        logger_type.info("Deleting index")
+        index = "gmcw_"+type
+        delete = es.delete_by_query(index=index, body={
+            "query": {
+                "match_all": {}
+            }
+        })
+        logger.info("Completed delete", result=delete)
+
         # Upload files
         # TODO: check for existing files, and remove deleted files
         # probably need to store manifest?
@@ -137,7 +146,7 @@ def main():
             logger_idx.info("Extracted search data")
 
             # push to elastic
-            index = "gmcw_"+type
+            # TODO change to bulk API
             id = os.path.splitext(file_path)[0] # remove extension
             res = es.index(index=index, id=id, body=search_data)
             logger_idx.info("Pushed to elastic", id=res['_id'])
