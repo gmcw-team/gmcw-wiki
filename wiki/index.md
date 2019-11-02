@@ -3,5 +3,8 @@ Welcome to the GameMaker Community Wiki, a community-run wiki containing documen
 
 Use the Search functionality at the top of the page to find knowledge.
 
+## Resources
+* [Helpful Resources](helpfulResources) - Helpful articles and resources for Game Development
+
 ## Join the Discussion
 GMCW calls the [GameMaker Discord](https://discord.gg/mgkaXDd) server its home, come join us to discuss everything GameMaker.
