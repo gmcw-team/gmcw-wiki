@@ -6,7 +6,7 @@ The exact order is largely undocumented. It is described briefly in incomplete f
 
 The following is an attempt to demystify and document the event order:
 
-## Event Loop events
+## Event Loop
 The following events are triggered by GameMaker's event loop as part of the lifecycle of a game.
 
 | Event                | When does it run?           | Description |
@@ -34,12 +34,28 @@ The following events are triggered by GameMaker's event loop as part of the life
 | Draw GUI event       | every frame                 | The Draw GUI event from the object editor. This event draws onto the back buffer by default, at the resolution set by `display_set_gui_size()` |
 | Draw GUI End event   | every frame                 | The Draw GUI End event from the object editor. This event draws onto the back buffer by default, at the resolution set by `display_set_gui_size()` |
 
-## User-triggered events
-The following events are never triggered by GameMaker's event loop, and therefore run only when called by user code
+## Room/Game End Sequence
+The following events are treggered in sequence when the room changes or game ends
 
 | Event                | When does it run?           | Description |
 | -------------------- | --------------------------- | ----------- |
-| Destroy              | on `instance_destroy()`     | The Destroy event from the object editor. Only when `instance_destroy()` is called, and only when the second (optional) argument of that function is `true` (this is the default behaviour if the second argument is not supplied). |
+| Room End event       | on room change or game end  | The Room End event from the object editor. Only run when room changes or restarts, or game ends or restarts. |
+| Game End event       | on game end                 | The Game End event from the object editor. Only run when game ends or restarts. |
+| Cleanup event        | on room change or game end  | The Cleanup event from the object editor. Only run when game ends or restarts OR room changes or restarts but instance is not persistent.  |
+
+## Instance Destroy Sequence
+The following events are triggered in sequence when an instance is destroyed by calling `instance_destroy()`
+
+| Event                | When does it run?           | Description |
+| -------------------- | --------------------------- | ----------- |
+| Destroy              | on `instance_destroy()`     | The Destroy event from the object editor. Only when `instance_destroy()` is called without a second argument, or when the second argument is `true`. |
+| Cleanup event        | on `instance_destroy()`     | The Cleanup event from the object editor. Always runs when instance is destroyed.  |
+
+## User Events
+The following events are only run when called by user code
+
+| Event                | When does it run?           | Description |
+| -------------------- | --------------------------- | ----------- |
 | User events          | on `event_user()`           | The User events from the object editor. |
 
 ## Uncertainties/TODO
@@ -48,7 +64,6 @@ There are some uncertainties still in the exact order of some of the events abov
 * Exact order of all the async events
 * Where `xprevious` and `yprevious` get set. This needs to be confirmed
 * When does Window Resize happen?
-* When does Cleanup happen?
 * When do Gesture Events happen?
 * When do Outside Room/IntersectBoundary events happen?
 * When do Animation events happen?
