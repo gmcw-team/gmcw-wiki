@@ -1,4 +1,4 @@
-# Helpful Art and Music Resources
+# Helpful General Gamedev Resources
 
 Below is a list of helpful articles regarding general game development philosophy!
 

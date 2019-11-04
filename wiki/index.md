@@ -3,7 +3,8 @@ Welcome to the GameMaker Community Wiki, a community-run wiki containing documen
 
 Use the Search functionality at the top of the page to find knowledge.
 
-## Resources
+## Wiki Pages
+* [GMCW Services](gmcw/index) - Tools provided by this website
 * [Helpful Resources](resources/index) - Helpful articles and resources for Game Development
 * [In-depth Tech](indepth/index) - In-depth discussions about specific GameMaker Features
 * [Undocumented Features](undocumented/index) - Undocumented GameMaker Features
