@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""" bootstraps the server """
+""" bootstraps data into the server """
 
 import sys
 import os
@@ -16,27 +16,26 @@ from markdown import markdown
 from bs4 import BeautifulSoup as bs
 import re
 
-logger = logging.getLogger(__name__)
-log_handler = logging.StreamHandler(sys.stdout) # pylint: disable=invalid-name
-log_handler.setFormatter(logging.Formatter('[%(asctime)s] %(message)s'))
-logger.addHandler(log_handler)
+import logging_suite
+import logging
+import structlog
+from sentry_sdk import capture_message
+
+logging_suite.setup()
+logger = structlog.get_logger(__name__, component="bootstrap")
 logger.setLevel(logging.DEBUG)
+
+TYPES = ["wiki"]
 
 def main():
     """ starts here """
-
-    # check manifest exists
-    logger.info("Fetching manifest")
-    files = [line.rsplit(",", 2) for line in open("manifest.txt")]
-    fileCount = len(files)
-    logger.info(f"...got {fileCount} files")
 
     # deal with credentials
     logger.info("Parsing credential")
     cred_text = os.environ.get('FIREBASE_ADMIN_KEY')
     cred_dict = json.loads(cred_text)
     cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
-    logger.info(f"...got credential id {cred_dict['private_key_id'][:6]}...")
+    logger.info("Got credential id", cred_id=cred_dict['private_key_id'])
 
     # connect Firebase
     logger.info("Connect firebase")
@@ -51,15 +50,15 @@ def main():
                         use_ssl=True,
                         http_auth=os.environ.get('ELASTICSEARCH_CRED'))
     health = es.cluster.health()
-    logger.info(f"...got status {health['status']}")
+    logger.info("Got elasticsearch connect health", health=health)
 
     # import functions file
     logger.info("Import fnames")
     with open("fnames.json") as fp:
         fnames = set(json.load(fp))
+    logger.info("Got fnames")
 
     # define some functions
-
     func_pattern = re.compile(r"\s(\w+)\(")
 
     def upload(md, hash, dest_path):
@@ -88,9 +87,7 @@ def main():
             title = "Untitled page"
 
         # getremaining headings
-        headings1 = [res.text for res in soup.find_all("h1")]
-        headings2 = [res.text for res in soup.find_all("h2")]
-        headings3 = [res.text for res in soup.find_all(["h3", "h4", "h5", "h6"])]
+        headings = [res.text for res in soup.find_all(["h1", "h2", "h3", "h4", "h5", "h6"])]
 
         # get functions
         func_candidates = set(func_pattern.findall(fulltext))
@@ -99,45 +96,64 @@ def main():
         return {
             "fulltext": fulltext,
             "title": title,
-            "headings1": headings1,
-            "headings2": headings2,
-            "headings3": headings3,
+            "headings": headings,
             "functions": functions
         }
 
-    # Upload files 
-    # TODO: check for existing files, and remove deleted files
-    # probably need to store manifest?
-    for idx, (file, hash, timestamp) in enumerate(files):
-        logger.info(f"Processing file {idx+1} of {fileCount}: {file}")
+    for type in TYPES:
+        # check manifest exists
+        logger.info("Fetching manifest for type", type=type)
+        files = [line.rsplit(",", 2) for line in open(f"manifest_{type}.txt")]
+        fileCount = len(files)
+        logger.info("Got files for type", count=fileCount)
+        logger_type = logger.bind(count=fileCount, type=type)
 
-        dest_path = os.path.relpath(file, "..").replace("\\", "/")
+        # clear index
+        logger_type.info("Deleting index")
+        index = "gmcw_"+type
+        delete = es.delete_by_query(index=index, body={
+            "query": {
+                "match_all": {}
+            }
+        })
+        logger.info("Completed delete", result=delete)
 
-        # filtering
-        if not dest_path.startswith(("wiki", "code")) or not dest_path.endswith(".md"):
-            logger.info("...file path invalid, skipping")
-            continue
+        # Upload files
+        # TODO: check for existing files, and remove deleted files
+        # probably need to store manifest?
+        for idx, (file, hash, timestamp) in enumerate(files):
+            logger_type.info("Processing file", idx=idx)
+            logger_idx = logger_type.bind(idx=idx)
 
-        # read file
-        md_bytes = open(file, "rb").read()
+            # normalize paths
+            source_folder = os.path.join("..", type)
+            file_path = os.path.relpath(file, source_folder).replace("\\", "/")
+            dest_path = os.path.join(type, file_path).replace("\\", "/")
 
-        # upload to bucket
-        upload(md_bytes, hash, dest_path)
-        logger.info(f"...uploaded to {dest_path}")
+            # read file
+            md_bytes = open(file, "rb").read()
 
-        # extract search data
-        md_text = md_bytes.decode("utf-8", "ignore")
-        search_data = extract(md_text)
-        search_data["timestamp"] = int(timestamp)
-        logger.info(f"...extracted search data")
+            # upload to bucket
+            upload(md_bytes, hash, dest_path)
+            logger_idx.info("Uploaded", path=dest_path)
 
-        # push to elastic
-        id = os.path.splitext(dest_path)[0]
-        res = es.index(index="pages", id=id, body=search_data)
-        logger.info(f"...pushed to elastic id {res['_id']}")
+            # extract search data
+            md_text = md_bytes.decode("utf-8", "ignore")
+            search_data = extract(md_text)
+            search_data["timestamp"] = int(timestamp)
+            search_data["type"] = type
+            search_data["hash"] = hash
+            logger_idx.info("Extracted search data")
 
+            # push to elastic
+            # TODO change to bulk API
+            id = os.path.splitext(file_path)[0] # remove extension
+            res = es.index(index=index, id=id, body=search_data)
+            logger_idx.info("Pushed to elastic", id=res['_id'])
 
-    logger.info(f"Done bootstrapping {fileCount} files")
+        logger_type.info(f"Done bootstrapping files")
+
+    logger.info("All done")
 
 if __name__ == "__main__":
     main()

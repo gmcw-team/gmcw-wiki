@@ -24,7 +24,8 @@ jobs:
     - name: Generate manifest.txt
       working-directory: ./bootstrap
       run: |
-        ./generate_manifest.sh > manifest.txt
+        chmod +x generate_manifests.sh
+        ./generate_manifests.sh ../wiki > manifest_wiki.txt
     - name: Bootstrap data
       working-directory: ./bootstrap
       env:
@@ -32,5 +33,6 @@ jobs:
         FIREBASE_ADMIN_KEY: ${{ secrets.FIREBASE_ADMIN_KEY }}
         ELASTICSEARCH_HOST: ${{ secrets.ELASTICSEARCH_HOST }}
         ELASTICSEARCH_CRED: ${{ secrets.ELASTICSEARCH_CRED }}
+        SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
       run: |
         pipenv run bootstrap
