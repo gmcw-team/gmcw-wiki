@@ -5,6 +5,6 @@ Below is a helpful list of articles and resources for all things game developmen
 Can you think of other resources that should be here? Feel free to [contribute them](../contributing)!
 
 ## Categories
-* [GML and GameMaker](resources/gml)
-* [Art and Music](resources/artMusic)
-* [General Gamedev](resources/general)
+* [GML and GameMaker](gml)
+* [Art and Music](artMusic)
+* [General Gamedev](general)
