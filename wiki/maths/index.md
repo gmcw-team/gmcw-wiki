@@ -6,3 +6,4 @@ Got levels to spare? Consider [contributing](../contributing) to this section of
 
 ## Pages
 * [Verlet Integration](verletIntegration) - ropes, chains, cloth simulations, and ragdolls
+* [Inverse Kinematics](inverseKinematics) - arms, legs, tentacles, and tails
