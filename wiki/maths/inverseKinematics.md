@@ -5,7 +5,7 @@ This is useful in video games for proceedural animation and allowing your actors
 
 ## Examples
 Examples of IK used in GameMaker
-* [IK Scripts](https://marketplace.yoyogames.com/assets/6157/inverse-kinematics)/[tutorial](https://marketplace.yoyogames.com/assets/6279/inverse-kinematics-tutorial) - An extension which supports resizable arms ans solved using FABRIK*
+* [IK Scripts](https://marketplace.yoyogames.com/assets/6157/inverse-kinematics)/[tutorial](https://marketplace.yoyogames.com/assets/6279/inverse-kinematics-tutorial) - An extension that provides resizable arms which are solved using FABRIK IK
 * [Skeletal Animation](https://github.com/NuxiiGit/gms2d-skeletal-animation) - A collection of scripts for building and rendering bone animations
 
 ## Resources
