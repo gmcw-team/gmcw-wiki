@@ -108,3 +108,10 @@ If macros were hygienic, this code would throw an error because the variable `a`
 var a = 2;
 show_message(a);
 ```
+
+## Further Reading
+
+Because of the similarities between C macros and GameMaker macros, it might be worth reading the online C documentation for macros:
+
+1. [C docs](https://gcc.gnu.org/onlinedocs/cpp/Macros.html)
+2. [GameMaker Studio 2 docs](https://docs2.yoyogames.com/source/_build/3_scripting/3_gml_overview/6_scope.html) - See: Macros
