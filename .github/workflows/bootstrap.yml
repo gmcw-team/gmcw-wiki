@@ -33,6 +33,5 @@ jobs:
         FIREBASE_ADMIN_KEY: ${{ secrets.FIREBASE_ADMIN_KEY }}
         ELASTICSEARCH_HOST: ${{ secrets.ELASTICSEARCH_HOST }}
         ELASTICSEARCH_CRED: ${{ secrets.ELASTICSEARCH_CRED }}
-        SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
       run: |
         pipenv run bootstrap

@@ -16,14 +16,7 @@ from markdown import markdown
 from bs4 import BeautifulSoup as bs
 import re
 
-import logging_suite
-import logging
-import structlog
-from sentry_sdk import capture_message
-
-logging_suite.setup()
-logger = structlog.get_logger(__name__, component="bootstrap")
-logger.setLevel(logging.DEBUG)
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 TYPES = ["wiki"]
 
@@ -31,32 +24,32 @@ def main():
     """ starts here """
 
     # deal with credentials
-    logger.info("Parsing credential")
+    logging.info("Parsing credential")
     cred_text = os.environ.get('FIREBASE_ADMIN_KEY')
     cred_dict = json.loads(cred_text)
     cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
-    logger.info("Got credential id", cred_id=cred_dict['private_key_id'])
+    logging.info(f"Got credential id {cred_dict['private_key_id']}")
 
     # connect Firebase
-    logger.info("Connect firebase")
+    logging.info("Connect firebase")
     bucket_text = os.environ.get('FIREBASE_BUCKET')
     cred = firebase_admin.credentials.Certificate(cred_dict)
     firebase_admin.initialize_app(cred)
     bucket = firebase_admin.storage.bucket(bucket_text)
 
     # connect Elasticsearch
-    logger.info("Connect elasticsearch")
+    logging.info("Connect elasticsearch")
     es = Elasticsearch(hosts=[os.environ.get('ELASTICSEARCH_HOST')],
                         use_ssl=True,
                         http_auth=os.environ.get('ELASTICSEARCH_CRED'))
     health = es.cluster.health()
-    logger.info("Got elasticsearch connect health", health=health)
+    logging.info(f"Got elasticsearch connect health {health}")
 
     # import functions file
-    logger.info("Import fnames")
+    logging.info("Import fnames")
     with open("fnames.json") as fp:
         fnames = set(json.load(fp))
-    logger.info("Got fnames")
+    logging.info("Got fnames")
 
     # define some functions
     func_pattern = re.compile(r"\s(\w+)\(")
@@ -102,28 +95,26 @@ def main():
 
     for type in TYPES:
         # check manifest exists
-        logger.info("Fetching manifest for type", type=type)
+        logging.info(f"Fetching manifest for type {type}")
         files = [line.rsplit(",", 2) for line in open(f"manifest_{type}.txt")]
         fileCount = len(files)
-        logger.info("Got files for type", count=fileCount)
-        logger_type = logger.bind(count=fileCount, type=type)
+        logging.info(f"Got {fileCount} files for type")
 
         # clear index
-        logger_type.info("Deleting index")
+        logging.info("Deleting index")
         index = "gmcw_"+type
         delete = es.delete_by_query(index=index, body={
             "query": {
                 "match_all": {}
             }
         })
-        logger.info("Completed delete", result=delete)
+        logging.info(f"Completed delete {delete}")
 
         # Upload files
         # TODO: check for existing files, and remove deleted files
         # probably need to store manifest?
         for idx, (file, hash, timestamp) in enumerate(files):
-            logger_type.info("Processing file", idx=idx)
-            logger_idx = logger_type.bind(idx=idx)
+            logging.info(f"Processing file idx {idx}")
 
             # normalize paths
             source_folder = os.path.join("..", type)
@@ -135,7 +126,7 @@ def main():
 
             # upload to bucket
             upload(md_bytes, hash, dest_path)
-            logger_idx.info("Uploaded", path=dest_path)
+            logging.info(f"Uploaded {dest_path}")
 
             # extract search data
             md_text = md_bytes.decode("utf-8", "ignore")
@@ -143,17 +134,17 @@ def main():
             search_data["timestamp"] = int(timestamp)
             search_data["type"] = type
             search_data["hash"] = hash
-            logger_idx.info("Extracted search data")
+            logging.info("Extracted search data")
 
             # push to elastic
             # TODO change to bulk API
             id = os.path.splitext(file_path)[0] # remove extension
             res = es.index(index=index, id=id, body=search_data)
-            logger_idx.info("Pushed to elastic", id=res['_id'])
+            logging.info(f"Pushed to elastic with _id {res['_id']}")
 
-        logger_type.info(f"Done bootstrapping files")
+        logging.info("Done bootstrapping files")
 
-    logger.info("All done")
+    logging.info("All done")
 
 if __name__ == "__main__":
     main()

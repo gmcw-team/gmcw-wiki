@@ -15,9 +15,6 @@ firebase-admin = "*"
 elasticsearch = "*"
 markdown = "*"
 beautifulsoup4 = "*"
-sentry-sdk = "*"
-structlog = "*"
-python-json-logger = "*"
 
 [requires]
 python_version = "3.7"
